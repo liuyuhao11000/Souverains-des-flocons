@@ -1,3 +1,5 @@
+import numpy as np
+
 class HexaCell:
     __slots__ = ("q", "r", "s", 
         "state", 
@@ -31,7 +33,14 @@ class HexaCell:
         return len(self - other)
 
     def GetFalseNeighbors(self):
-        offsets = [(1,0), (1,-1), (0,-1), (-1,0), (-1,1), (0,1)]
+        offsets = (
+            np.array((1, 0)), 
+            np.array((1,-1)), 
+            np.array((0,-1)), 
+            np.array((-1,0)), 
+            np.array((-1,1)), 
+            np.array((0, 1)),
+            )
         for q, r in offsets:
             yield self + HexaCell(q, r)
 
@@ -70,23 +79,30 @@ class HexaMap:
         self._InitMap()
 
     def __getitem__(self, qr):
-        q,r = qr
-        cell = HexaCell(q,r)
-        if cell in self.cells:
-            return self.cells[cell]
-        else:
-            raise LookupError
+        if qr in self.cells.keys():
+            return self.cells[qr]
+        raise LookupError
 
     def GetNeighbors(self, hexaCell):
-        for cell in hexaCell.GetFalseNeighbors():
-            if cell in self.cells:
-                yield self.cells[cell]
+        bqr = np.array((hexaCell.q, hexaCell.r))
+        offsets = (
+            np.array((1, 0)), 
+            np.array((1,-1)), 
+            np.array((0,-1)), 
+            np.array((-1,0)), 
+            np.array((-1,1)), 
+            np.array((0, 1)),
+            )
+        for qr in offsets:
+            try:
+                yield self.cells[tuple(qr + bqr)]
+            except KeyError:
+                pass
 
     def GetAllNeighbors(self, hexaCell):
         neighbors = []
-        for cell in hexaCell.GetFalseNeighbors():
-            if cell in self.cells:
-                neighbors.append(self.cells[cell])
+        for cell in self.GetNeighbors(hexaCell):
+            neighbors.append(cell)
         return neighbors
 
     def NeighborsCount(self, hexaCell):
@@ -99,7 +115,7 @@ class HexaMap:
             r2 = min(self.radius, - q + self.radius)
             for r in range(r1, r2 + 1):
                 cell = HexaCell(q,r)
-                self.cells[cell] = cell
+                self.cells[(q,r)] = cell
 
         for cell in self.cells.values():
             cell.isEdge = self.NeighborsCount(cell) != 6

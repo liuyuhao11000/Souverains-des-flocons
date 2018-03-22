@@ -1,5 +1,6 @@
 from hexagrid import *
 from model import *
+import multiprocessing as mp
 
 class Controller:
     def __init__(self, alpha, beta, gamma, mapRadius):

@@ -1,1 +1,3 @@
-w = Window(15)
+import view
+
+w = view.Window(15)

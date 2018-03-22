@@ -69,7 +69,7 @@ class Window:
     
     def __init__(self, mapRadius):
         self.mapRadius = mapRadius
-        self.controller = Controller(0,0,0, self.mapRadius)
+        self.controller = Controller(0,0,0, mapRadius)
 
         size = 500
         self.canvasWidth = size
@@ -81,26 +81,26 @@ class Window:
 
         self._InitUI()
         
-    def lockbutton(self, mybutton):
+    def lockbutton(mybutton):
         def wrap(f):
             def new_f(*args, **kwargs):
-                self.buttons[mybutton].config(state=DISABLED)
+                args[0].buttons[mybutton].config(state=DISABLED)
                 ret = f(*args, **kwargs)
-                self.buttons[mybutton].config(state=DISABLED)
+                args[0].buttons[mybutton].config(state=NORMAL)
             new_f.__name__ = f.__name__
             return new_f
         return wrap
     
-    def activebutton(self, mybutton):
+    def activebutton(mybutton):
         def wrap(f):
             def new_f(*args, **kwargs):
-                self.buttons[mybutton].config(state=ACTIVE)
+                args[0].buttons[mybutton].config(state=ACTIVE)
                 ret = f(*args, **kwargs)
-                self.buttons[mybutton].config(state=NORMAL)
+                args[0].buttons[mybutton].config(state=NORMAL)
             new_f.__name__ = f.__name__
             return new_f
         return wrap
-        
+
     def _InitUI(self):
         self.window = Tk()
         self.canvas = Canvas(self.window, width=self.canvasWidth, height=self.canvasHeight, bg="black")
@@ -113,7 +113,6 @@ class Window:
         self.buttons = dict(nextStep=btn1, reset=btn2, auto=btn3)
 
         
-        
         text = StringVar()
         text.set("t = 0")
 
@@ -122,12 +121,11 @@ class Window:
         alpha = Scale(self.window, orient='horizontal', from_=0, to=1, resolution=0.1, tickinterval=2, length=self.canvasWidth, label='Alpha')
         beta = Scale(self.window, orient='horizontal', from_=0, to=1, resolution=0.1, tickinterval=2, length=self.canvasWidth, label='Beta')
         gamma = Scale(self.window, orient='horizontal', from_=0, to=0.2, resolution=0.0001, tickinterval=2, length=self.canvasWidth, label='Gamma')
-
         steps = Scale(self.window, orient="horizontal", from_=1, to=2000, resolution=1, tickinterval=2, length=self.canvasWidth, label='Steps forward')
 
         self.sliders = dict(alpha=alpha, beta=beta, gamma=gamma, steps=steps)
         
-        # Positionnement
+        #Positionnement
 
         self.canvas.grid(row=0, column=0, columnspan=3)
         
@@ -153,13 +151,12 @@ class Window:
 
         self.controller.ResetGrid()
         self._Display()
-
-    #@activebutton(self, "auto")
+    
+    @activebutton("auto")
     def _Autoplay(self):
         steps = self.sliders["steps"].get()
         for i in range(steps):
             self._NextStep()
-            #sleep(0.2)
 
     def _NextStep(self):
         assert self.controller != None, "La grille n'est pas initialisée : appuyer sur Reset"
