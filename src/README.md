@@ -1,3 +1,9 @@
++ Problems : each step
+  + Display all the cells
+  + compute all the cells
+
+
+
 # Controllers
 
 Le contrôleur est (pour l'instant) équivalent à la grille. Il stocke une grille encapsulée dans un objet HexaGrid.
